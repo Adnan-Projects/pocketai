@@ -1,17 +1,23 @@
 package com.narimukkil.pocketai.parser
 
 import java.util.Locale
+import javax.inject.Inject
 
-class AmountExtractor {
+class AmountExtractor @Inject constructor() {
 
-    private val amountPattern = Regex(
-        pattern = """(?:₹|RS\.?|INR)\s*([\d,]+(?:\.\d{1,2})?)""",
-        option = RegexOption.IGNORE_CASE
+    private val amountPatterns = listOf(
+        Regex("""(?:₹|RS\.?|INR)\s*([\d,]+(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE),
+        Regex("""(?:debited|credited|paid)(?:\s+by)?\s*(?:₹|RS\.?|INR)?\s*([\d,]+(?:\.\d{1,2})?)""", RegexOption.IGNORE_CASE)
     )
 
     fun extract(text: String): Long? {
-
-        val match = amountPattern.find(text) ?: return null
+        var match: MatchResult? = null
+        for (pattern in amountPatterns) {
+            match = pattern.find(text)
+            if (match != null) break
+        }
+        
+        if (match == null) return null
 
         val amountText = match.groupValues[1]
             .replace(",", "")

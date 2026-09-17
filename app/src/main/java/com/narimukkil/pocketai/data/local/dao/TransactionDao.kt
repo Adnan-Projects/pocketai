@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.narimukkil.pocketai.data.local.entity.TransactionEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TransactionDao {
@@ -21,6 +22,9 @@ interface TransactionDao {
 
     @Query("SELECT * FROM transactions ORDER BY transactionDate DESC")
     suspend fun getAllTransactions(): List<TransactionEntity>
+    
+    @Query("SELECT * FROM transactions ORDER BY transactionDate DESC")
+    fun getAllTransactionsFlow(): Flow<List<TransactionEntity>>
 
     @Query("""
         SELECT * FROM transactions
@@ -31,6 +35,16 @@ interface TransactionDao {
         startDate: Long,
         endDate: Long
     ): List<TransactionEntity>
+
+    @Query("""
+        SELECT * FROM transactions
+        WHERE transactionDate BETWEEN :startDate AND :endDate
+        ORDER BY transactionDate DESC
+    """)
+    fun getTransactionsBetweenFlow(
+        startDate: Long,
+        endDate: Long
+    ): Flow<List<TransactionEntity>>
 
     @Query("""
         SELECT * FROM transactions

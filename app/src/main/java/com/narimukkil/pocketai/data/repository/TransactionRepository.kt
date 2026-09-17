@@ -1,7 +1,9 @@
 package com.narimukkil.pocketai.data.repository
 
+import com.narimukkil.pocketai.data.local.dao.CategoryMappingDao
 import com.narimukkil.pocketai.data.local.dao.TransactionDao
 import com.narimukkil.pocketai.data.local.entity.TransactionEntity
+import kotlinx.coroutines.flow.Flow
 
 class TransactionRepository(
     private val transactionDao: TransactionDao
@@ -23,6 +25,10 @@ class TransactionRepository(
         return transactionDao.getAllTransactions()
     }
 
+    fun getAllTransactionsFlow(): Flow<List<TransactionEntity>> {
+        return transactionDao.getAllTransactionsFlow()
+    }
+
     suspend fun getTransactionsBetween(
         startDate: Long,
         endDate: Long
@@ -30,7 +36,12 @@ class TransactionRepository(
         return transactionDao.getTransactionsBetween(startDate, endDate)
     }
 
-    suspend fun getTransactionsByCategory(
+    fun getTransactionsBetweenFlow(
+        startDate: Long,
+        endDate: Long
+    ): Flow<List<TransactionEntity>> {
+        return transactionDao.getTransactionsBetweenFlow(startDate, endDate)
+    }   suspend fun getTransactionsByCategory(
         category: String
     ): List<TransactionEntity> {
         return transactionDao.getTransactionsByCategory(category)
@@ -46,5 +57,9 @@ class TransactionRepository(
         smsHash: String
     ): TransactionEntity? {
         return transactionDao.findBySmsHash(smsHash)
+    }
+    
+    suspend fun getAllCustomCategories(categoryMappingDao: CategoryMappingDao): List<String> {
+        return categoryMappingDao.getAllCustomCategories()
     }
 }

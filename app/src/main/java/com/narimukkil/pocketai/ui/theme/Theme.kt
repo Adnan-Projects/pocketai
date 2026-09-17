@@ -9,45 +9,53 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val CleanLightColorScheme = lightColorScheme(
+    primary = PrimaryBlack,
     onPrimary = Color.White,
+    primaryContainer = PrimaryBlack,
+    onPrimaryContainer = Color.White,
+    
+    secondary = TextSecondary,
     onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    
+    background = BackgroundOffWhite,
+    onBackground = TextPrimary,
+    
+    surface = SurfaceWhite,
+    onSurface = TextPrimary,
+    surfaceVariant = SurfaceWhite,
+    onSurfaceVariant = TextSecondary,
+    
+    error = ExpenseRed,
+    onError = Color.White
 )
 
 @Composable
 fun PocketAITheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    // We force the clean light theme for a neat look, ignoring dark mode for now
+    darkTheme: Boolean = false, 
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    val colorScheme = CleanLightColorScheme
+    val view = LocalView.current
+    
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            // Make status bar and navigation bar blend with the white neat theme
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
         }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
     }
 
     MaterialTheme(
