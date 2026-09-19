@@ -1,5 +1,8 @@
 package com.narimukkil.pocketai.ui.main.tabs.reports
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +20,10 @@ import com.narimukkil.pocketai.data.local.entity.TransactionEntity
 import com.narimukkil.pocketai.ui.main.MainUiState
 
 @Composable
-fun ReportsScreen(uiState: MainUiState) {
+fun ReportsScreen(
+    uiState: MainUiState,
+    onSetBudgetClick: (String, Long) -> Unit
+) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Daily", "Monthly")
 
@@ -70,11 +76,22 @@ fun ReportsScreen(uiState: MainUiState) {
                 }
 
                 items(categoryTotals) { (category, totalAmount) ->
-                    val percentage = if (totalPaise > 0) (totalAmount.toFloat() / totalPaise) * 100 else 0f
+                    val budget = uiState.budgets.find { it.category == category }
+                    val budgetLimit = budget?.limitPaise ?: 0L
+                    
+                    val progressPercentage = if (budgetLimit > 0) {
+                        (totalAmount.toFloat() / budgetLimit) * 100
+                    } else if (totalPaise > 0) {
+                        (totalAmount.toFloat() / totalPaise) * 100
+                    } else 0f
+
                     CategoryProgressItem(
                         category = category,
                         amountPaise = totalAmount,
-                        percentage = percentage
+                        budgetLimitPaise = budgetLimit,
+                        percentage = progressPercentage,
+                        isMonthlyTab = selectedTab == 1,
+                        onSetBudgetClick = { onSetBudgetClick(category, budgetLimit) }
                     )
                 }
             }
@@ -83,7 +100,14 @@ fun ReportsScreen(uiState: MainUiState) {
 }
 
 @Composable
-fun CategoryProgressItem(category: String, amountPaise: Long, percentage: Float) {
+fun CategoryProgressItem(
+    category: String, 
+    amountPaise: Long, 
+    budgetLimitPaise: Long,
+    percentage: Float,
+    isMonthlyTab: Boolean,
+    onSetBudgetClick: () -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -96,33 +120,71 @@ fun CategoryProgressItem(category: String, amountPaise: Long, percentage: Float)
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onBackground
             )
-            Text(
-                text = "₹${"%.2f".format(amountPaise / 100.0)}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.error
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "₹${"%.2f".format(amountPaise / 100.0)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (budgetLimitPaise > 0 && amountPaise > budgetLimitPaise) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground
+                )
+                if (budgetLimitPaise > 0) {
+                    Text(
+                        text = "of ₹${"%.2f".format(budgetLimitPaise / 100.0)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var animationPlayed by remember { mutableStateOf(false) }
+            val animatedProgress by animateFloatAsState(
+                targetValue = if (animationPlayed) (percentage / 100f).coerceAtMost(1f) else 0f,
+                animationSpec = tween(
+                    durationMillis = 1000, 
+                    easing = FastOutSlowInEasing
+                ),
+                label = "ProgressAnimation"
+            )
+
+            LaunchedEffect(Unit) {
+                animationPlayed = true
+            }
+
             LinearProgressIndicator(
-                progress = { percentage / 100f },
+                progress = { animatedProgress },
                 modifier = Modifier
                     .weight(1f)
                     .height(8.dp)
                     .clip(CircleShape),
-                color = MaterialTheme.colorScheme.primary,
+                color = if (budgetLimitPaise > 0 && percentage >= 90) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = "${"%.1f".format(percentage)}%",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            
+            if (isMonthlyTab) {
+                TextButton(
+                    onClick = onSetBudgetClick,
+                    contentPadding = PaddingValues(0.dp),
+                    modifier = Modifier.height(24.dp)
+                ) {
+                    Text(
+                        text = if (budgetLimitPaise > 0) "${"%.1f".format(percentage)}%" else "Set Budget",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (budgetLimitPaise > 0 && percentage >= 90) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                Text(
+                    text = "${"%.1f".format(percentage)}%",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }

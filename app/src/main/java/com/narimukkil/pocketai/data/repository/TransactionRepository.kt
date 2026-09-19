@@ -58,8 +58,8 @@ class TransactionRepository(
     ): TransactionEntity? {
         return transactionDao.findBySmsHash(smsHash)
     }
-    
-    suspend fun getAllCustomCategories(categoryMappingDao: CategoryMappingDao): List<String> {
-        return categoryMappingDao.getAllCustomCategories()
+
+    suspend fun findDuplicate(amount: Long, type: String, startTime: Long, endTime: Long): TransactionEntity? {
+        return transactionDao.findDuplicate(amount, type, startTime, endTime)
     }
 }

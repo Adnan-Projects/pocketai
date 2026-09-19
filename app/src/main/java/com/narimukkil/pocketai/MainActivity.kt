@@ -13,17 +13,25 @@ import com.narimukkil.pocketai.ui.dashboard.PermissionsScreen
 import com.narimukkil.pocketai.ui.theme.PocketAITheme
 import dagger.hilt.android.AndroidEntryPoint
 
+import androidx.compose.foundation.isSystemInDarkTheme
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PocketAITheme {
+            val systemTheme = isSystemInDarkTheme()
+            var isDarkTheme by remember { mutableStateOf(systemTheme) }
+
+            PocketAITheme(darkTheme = isDarkTheme) {
                 var permissionsGranted by remember { mutableStateOf(false) }
 
                 if (permissionsGranted) {
-                    MainScreen()
+                    MainScreen(
+                        isDarkTheme = isDarkTheme,
+                        onThemeToggle = { isDarkTheme = !isDarkTheme }
+                    )
                 } else {
                     PermissionsScreen(
                         onPermissionsGranted = { permissionsGranted = true }

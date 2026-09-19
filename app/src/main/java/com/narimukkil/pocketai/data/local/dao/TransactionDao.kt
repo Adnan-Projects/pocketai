@@ -72,4 +72,13 @@ interface TransactionDao {
     suspend fun findBySmsHash(
         smsHash: String
     ): TransactionEntity?
+
+    @Query("""
+        SELECT * FROM transactions
+        WHERE amountPaise = :amount
+        AND type = :type
+        AND transactionDate BETWEEN :startTime AND :endTime
+        LIMIT 1
+    """)
+    suspend fun findDuplicate(amount: Long, type: String, startTime: Long, endTime: Long): TransactionEntity?
 }

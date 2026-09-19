@@ -1,7 +1,8 @@
 package com.narimukkil.pocketai.ui.main
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -28,7 +29,8 @@ fun SummaryCard(title: String, amount: Long) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .animateContentSize(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -61,7 +63,7 @@ fun TransactionItem(
     transaction: TransactionEntity,
     onCategoryClick: ((TransactionEntity) -> Unit)? = null
 ) {
-    val dateFormat = SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
     val dateString = dateFormat.format(Date(transaction.transactionDate))
     val isExpense = transaction.type == "EXPENSE"
     val isUncategorized = transaction.category == "UNCATEGORIZED"

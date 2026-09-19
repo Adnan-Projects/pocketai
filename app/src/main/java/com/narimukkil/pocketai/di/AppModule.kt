@@ -2,6 +2,7 @@ package com.narimukkil.pocketai.di
 
 import android.content.Context
 import com.narimukkil.pocketai.data.local.AppDatabase
+import com.narimukkil.pocketai.data.local.dao.BudgetDao
 import com.narimukkil.pocketai.data.local.dao.CategoryMappingDao
 import com.narimukkil.pocketai.data.local.dao.TransactionDao
 import com.narimukkil.pocketai.data.repository.TransactionRepository
@@ -35,6 +36,12 @@ object AppModule {
     @Singleton
     fun provideCategoryMappingDao(appDatabase: AppDatabase): CategoryMappingDao {
         return appDatabase.categoryMappingDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideBudgetDao(appDatabase: AppDatabase): BudgetDao {
+        return appDatabase.budgetDao()
     }
 
     @Provides

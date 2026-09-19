@@ -50,11 +50,16 @@ fun TodayScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(uiState.todayTransactions) { transaction ->
-                    TransactionItem(
-                        transaction = transaction,
-                        onCategoryClick = onCategoryClick
-                    )
+                items(
+                    items = uiState.todayTransactions,
+                    key = { it.id }
+                ) { transaction ->
+                    Box(modifier = Modifier.animateItem()) {
+                        TransactionItem(
+                            transaction = transaction,
+                            onCategoryClick = onCategoryClick
+                        )
+                    }
                 }
             }
         }

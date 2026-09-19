@@ -8,7 +8,8 @@ class RegexSmsParserImpl @Inject constructor(
     private val amountExtractor: AmountExtractor,
     private val merchantExtractor: MerchantExtractor,
     private val transactionTypeExtractor: TransactionTypeExtractor,
-    private val dateExtractor: DateExtractor
+    private val dateExtractor: DateExtractor,
+    private val accountExtractor: AccountExtractor
 ) : SmsParser {
 
     override fun parse(smsBody: String, smsId: String, sender: String, timestamp: Long): TransactionEntity? {
@@ -19,6 +20,9 @@ class RegexSmsParserImpl @Inject constructor(
         val merchant = merchantExtractor.extract(smsBody) ?: sender
         val date = dateExtractor.extract(smsBody) ?: timestamp
         
+        val bankName = accountExtractor.extractBankName(smsBody)
+        val lastFour = accountExtractor.extractLastFour(smsBody)
+        
         // Simple hash to prevent duplicates
         val rawHash = hashString("$sender$smsBody$date")
 
@@ -28,8 +32,8 @@ class RegexSmsParserImpl @Inject constructor(
             merchant = merchant,
             category = "UNCATEGORIZED",
             transactionDate = date,
-            paymentMethod = "UNKNOWN", // Could be extracted later
-            accountLastFour = null, // Could be extracted later
+            paymentMethod = bankName ?: "UNKNOWN", // Store Bank/Card type here
+            accountLastFour = lastFour, 
             referenceNumber = null,
             smsId = smsId,
             rawSmsHash = rawHash,

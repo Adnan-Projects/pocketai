@@ -4,20 +4,23 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.narimukkil.pocketai.data.local.dao.BudgetDao
 import com.narimukkil.pocketai.data.local.dao.CategoryMappingDao
 import com.narimukkil.pocketai.data.local.dao.TransactionDao
+import com.narimukkil.pocketai.data.local.entity.BudgetEntity
 import com.narimukkil.pocketai.data.local.entity.CategoryMappingEntity
 import com.narimukkil.pocketai.data.local.entity.TransactionEntity
 
 @Database(
-    entities = [TransactionEntity::class, CategoryMappingEntity::class],
-    version = 2,
+    entities = [TransactionEntity::class, CategoryMappingEntity::class, BudgetEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transactionDao(): TransactionDao
     abstract fun categoryMappingDao(): CategoryMappingDao
+    abstract fun budgetDao(): BudgetDao
 
     companion object {
 

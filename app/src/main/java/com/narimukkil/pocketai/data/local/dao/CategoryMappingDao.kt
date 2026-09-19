@@ -12,7 +12,7 @@ interface CategoryMappingDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(mapping: CategoryMappingEntity)
 
-    @Query("SELECT category FROM category_mappings WHERE :merchant LIKE '%' || merchantKeyword || '%' LIMIT 1")
+    @Query("SELECT category FROM category_mappings WHERE :merchant LIKE '%' || merchantKeyword || '%' OR merchantKeyword LIKE '%' || :merchant || '%' LIMIT 1")
     suspend fun getCategoryForMerchant(merchant: String): String?
 
     @Query("SELECT DISTINCT category FROM category_mappings")

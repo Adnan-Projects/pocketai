@@ -37,24 +37,43 @@ private val CleanLightColorScheme = lightColorScheme(
     onError = Color.White
 )
 
+private val CleanDarkColorScheme = darkColorScheme(
+    primary = PrimaryWhite,
+    onPrimary = Color.Black,
+    primaryContainer = PrimaryWhite,
+    onPrimaryContainer = Color.Black,
+    
+    secondary = TextSecondaryDark,
+    onSecondary = Color.Black,
+    
+    background = BackgroundPitchBlack,
+    onBackground = TextPrimaryDark,
+    
+    surface = SurfaceDarkGray,
+    onSurface = TextPrimaryDark,
+    surfaceVariant = SurfaceDarkGray,
+    onSurfaceVariant = TextSecondaryDark,
+    
+    error = ExpenseRed,
+    onError = Color.White
+)
+
 @Composable
 fun PocketAITheme(
-    // We force the clean light theme for a neat look, ignoring dark mode for now
-    darkTheme: Boolean = false, 
+    darkTheme: Boolean = isSystemInDarkTheme(), 
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = CleanLightColorScheme
+    val colorScheme = if (darkTheme) CleanDarkColorScheme else CleanLightColorScheme
     val view = LocalView.current
     
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            // Make status bar and navigation bar blend with the white neat theme
             window.statusBarColor = Color.Transparent.toArgb()
             window.navigationBarColor = Color.Transparent.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
 

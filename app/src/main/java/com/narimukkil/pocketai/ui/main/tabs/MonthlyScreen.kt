@@ -8,11 +8,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.narimukkil.pocketai.ui.main.MainUiState
 import com.narimukkil.pocketai.ui.main.SummaryCard
 import com.narimukkil.pocketai.data.local.entity.TransactionEntity
 import com.narimukkil.pocketai.ui.main.TransactionItem
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import java.io.BufferedWriter
+import java.io.OutputStreamWriter
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun MonthlyScreen(
@@ -49,11 +59,16 @@ fun MonthlyScreen(
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(uiState.monthlyTransactions) { transaction ->
-                    TransactionItem(
-                        transaction = transaction,
-                        onCategoryClick = onCategoryClick
-                    )
+                items(
+                    items = uiState.monthlyTransactions,
+                    key = { it.id }
+                ) { transaction ->
+                    Box(modifier = Modifier.animateItem()) {
+                        TransactionItem(
+                            transaction = transaction,
+                            onCategoryClick = onCategoryClick
+                        )
+                    }
                 }
             }
         }
